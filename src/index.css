@@ -1,0 +1,66 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --purple-deep: #5B21B6;
+  --purple: #7C3AED;
+  --purple-light: #A78BFA;
+  --purple-glow: #8B5CF6;
+  --black: #0A0A0A;
+  --black-soft: #141414;
+  --black-card: #1A1A1A;
+  --white: #FFFFFF;
+  --white-dim: rgba(255, 255, 255, 0.7);
+  --success: #22C55E;
+  --error: #EF4444;
+  --font-display: 'Luckiest Guy', cursive;
+  --font-body: 'Fredoka', sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+}
+
+body {
+  font-family: var(--font-body);
+  background: #050505;
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, textarea {
+  font-family: var(--font-body);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--black-soft);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--purple);
+  border-radius: 3px;
+}
