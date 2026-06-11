@@ -33,10 +33,16 @@ import {
 import { SWIPE_THRESHOLD, TRAIL_MIN_DIST, buildTrailPath, toStageCoords } from '../swipeTrail'
 import './GameScreen.css'
 
+const WRONG_LETTER_PENALTY = 10
+const RANDOM_SWIPE_PENALTY = 15
+const WORD_HINT_PENALTY = 25
+const WORD_HINT_SECONDS = 1.5
+
 interface SwipeGesture {
   active: boolean
   ended: boolean
   isSwipe: boolean
+  hitLetter: boolean
   pointerId: number
   startX: number
   startY: number
@@ -47,6 +53,11 @@ interface SwipeGesture {
   lastTrailY: number
   lastClientX: number
   lastClientY: number
+}
+
+interface SlotsMessage {
+  text: string
+  tone: 'bonus' | 'penalty'
 }
 
 interface Props {
@@ -82,6 +93,9 @@ export default function GameScreen({ words, settings, onBack }: Props) {
   const [goals, setGoals] = useState<Goal[]>([])
   const [badgeToast, setBadgeToast] = useState<string | null>(null)
   const [bonusPopup, setBonusPopup] = useState<string | null>(null)
+  const [slotsMessage, setSlotsMessage] = useState<SlotsMessage | null>(null)
+  const [wordHintActive, setWordHintActive] = useState(false)
+  const [wordHintCountdown, setWordHintCountdown] = useState(0)
 
   const gameStageRef = useRef<HTMLDivElement>(null)
   const gameAreaRef = useRef<HTMLDivElement>(null)
@@ -97,6 +111,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
     active: false,
     ended: false,
     isSwipe: false,
+    hitLetter: false,
     pointerId: -1,
     startX: 0,
     startY: 0,
@@ -142,7 +157,52 @@ export default function GameScreen({ words, settings, onBack }: Props) {
     gameStateRef.current.flyingLetter = null
     setSwipeTrails([])
     setDestroyingLetters([])
+    setWordHintActive(false)
+    setWordHintCountdown(0)
+    setSlotsMessage(null)
   }, [settings.previewSeconds])
+
+  function showSlotsMessage(text: string, tone: 'bonus' | 'penalty') {
+    setSlotsMessage({ text, tone })
+    window.setTimeout(() => setSlotsMessage(null), 900)
+  }
+
+  function applyScorePenalty(amount: number) {
+    setScore((s) => Math.max(0, s - amount))
+  }
+
+  function penalizeWrongLetter() {
+    const nextStats = recordWrongHit(sessionStatsRef.current)
+    sessionStatsRef.current = nextStats
+    setSessionStats(nextStats)
+    applyScorePenalty(WRONG_LETTER_PENALTY)
+    setBonusPopup(null)
+    showSlotsMessage(`−${WRONG_LETTER_PENALTY} wrong letter`, 'penalty')
+    setWrongFlash(true)
+    playSound('wrong')
+    window.setTimeout(() => setWrongFlash(false), 400)
+  }
+
+  function penalizeRandomSwipe() {
+    const nextStats = recordWrongHit(sessionStatsRef.current)
+    sessionStatsRef.current = nextStats
+    setSessionStats(nextStats)
+    applyScorePenalty(RANDOM_SWIPE_PENALTY)
+    showSlotsMessage(`−${RANDOM_SWIPE_PENALTY} wild swipe`, 'penalty')
+    setWrongFlash(true)
+    playSound('wrong')
+    window.setTimeout(() => setWrongFlash(false), 400)
+  }
+
+  function handleShowWordAgain() {
+    if (gameStateRef.current.phase !== 'playing' || gameStateRef.current.flyingLetter || wordHintActive) {
+      return
+    }
+    applyScorePenalty(WORD_HINT_PENALTY)
+    showSlotsMessage(`−${WORD_HINT_PENALTY} word peek`, 'penalty')
+    setWordHintActive(true)
+    setWordHintCountdown(WORD_HINT_SECONDS)
+  }
 
   const savedRef = useRef(false)
 
@@ -263,6 +323,19 @@ export default function GameScreen({ words, settings, onBack }: Props) {
 
     return () => clearTimeout(timer)
   }, [phase, previewCountdown, currentWord])
+
+  useEffect(() => {
+    if (!wordHintActive || wordHintCountdown <= 0) {
+      if (wordHintCountdown <= 0) setWordHintActive(false)
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      setWordHintCountdown((c) => c - 0.1)
+    }, 100)
+
+    return () => window.clearTimeout(timer)
+  }, [wordHintActive, wordHintCountdown])
 
   // Falling animation loop
   useEffect(() => {
@@ -527,11 +600,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
     if (letter.char !== expectedChar) {
       if (!ninja || !swipeRef.current.wrongTriggered) {
         if (ninja) swipeRef.current.wrongTriggered = true
-        setSessionStats((s) => recordWrongHit(s))
-        setBonusPopup(null)
-        setWrongFlash(true)
-        playSound('wrong')
-        setTimeout(() => setWrongFlash(false), 400)
+        penalizeWrongLetter()
       }
       return false
     }
@@ -552,8 +621,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
       const parts: string[] = []
       if (captureResult.streakBonus > 0) parts.push(`+${captureResult.streakBonus} streak`)
       if (captureResult.ninjaBonus > 0) parts.push(`+${captureResult.ninjaBonus} ninja`)
-      setBonusPopup(parts.join(' '))
-      setTimeout(() => setBonusPopup(null), 900)
+      showSlotsMessage(parts.join(' '), 'bonus')
     } else {
       setScore((s) => {
         processNewBadges(captureResult.stats, s)
@@ -609,6 +677,8 @@ export default function GameScreen({ words, settings, onBack }: Props) {
       const hit = findLetterAt(px, py)
       if (!hit || swipeRef.current.hitIds.has(hit.letter.id)) continue
 
+      swipeRef.current.hitLetter = true
+
       if (hit.letter.char === expected) {
         if (tryCaptureLetter(hit.letter, hit.fromX, hit.fromY, true, angle)) {
           swipeRef.current.hitIds.add(hit.letter.id)
@@ -662,6 +732,10 @@ export default function GameScreen({ words, settings, onBack }: Props) {
 
     if (swipe.isSwipe) {
       checkSwipeSegment(swipe.lastClientX, swipe.lastClientY, clientX, clientY)
+      const swipeDist = Math.hypot(clientX - swipe.startX, clientY - swipe.startY)
+      if (!swipe.hitLetter && swipeDist > SWIPE_THRESHOLD) {
+        penalizeRandomSwipe()
+      }
       if (swipe.trailId !== null) fadeSwipeTrail(swipe.trailId)
     } else {
       const hit = findLetterAt(clientX, clientY)
@@ -686,6 +760,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
       active: true,
       ended: false,
       isSwipe: false,
+      hitLetter: false,
       pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
@@ -767,6 +842,25 @@ export default function GameScreen({ words, settings, onBack }: Props) {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {phase === 'playing' && wordHintActive && (
+              <motion.div
+                key="word-hint"
+                className="game__hint-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <span className="game__preview-word">{currentWord}</span>
+                <div className="game__preview-timer">
+                  <div
+                    className="game__preview-timer-fill"
+                    style={{ width: `${(wordHintCountdown / WORD_HINT_SECONDS) * 100}%` }}
+                  />
+                </div>
+              </motion.div>
+            )}
 
         {phase === 'playing' && fallingLetters.map((letter) => (
           <motion.div
@@ -928,28 +1022,48 @@ export default function GameScreen({ words, settings, onBack }: Props) {
         </div>
       </div>
 
-      <div className="game__slots">
-        {currentWord.split('').map((_, i) => (
-          <div
-            key={i}
-            ref={(el) => { slotRefs.current[i] = el }}
-            className={`game__slot ${i < placedLetters.length ? 'game__slot--filled' : ''} ${i === letterIndex && phase === 'playing' ? 'game__slot--active' : ''} ${landingSlot === i ? 'game__slot--landing' : ''}`}
-          >
-            {placedLetters[i] ? (
-              <motion.span
-                className="game__slot-letter"
-                initial={{ scale: 0.3, y: 8, rotate: -8 }}
-                animate={{ scale: [0.3, 1.25, 1], y: [8, -6, 0], rotate: [-8, 4, 0] }}
-                transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
-              >
-                {placedLetters[i]}
-              </motion.span>
-            ) : (
-              <span className="game__slot-underscore" />
-            )}
-            {landingSlot === i && <span className="game__slot-ripple" />}
+      <div className="game__slots-section">
+        {phase === 'playing' && slotsMessage && (
+          <div className={`game__slots-message game__slots-message--${slotsMessage.tone}`}>
+            {slotsMessage.text}
           </div>
-        ))}
+        )}
+        <div className="game__slots-bar">
+          <div className="game__slots">
+            {currentWord.split('').map((_, i) => (
+              <div
+                key={i}
+                ref={(el) => { slotRefs.current[i] = el }}
+                className={`game__slot ${i < placedLetters.length ? 'game__slot--filled' : ''} ${i === letterIndex && phase === 'playing' ? 'game__slot--active' : ''} ${landingSlot === i ? 'game__slot--landing' : ''}`}
+              >
+                {placedLetters[i] ? (
+                  <motion.span
+                    className="game__slot-letter"
+                    initial={{ scale: 0.3, y: 8, rotate: -8 }}
+                    animate={{ scale: [0.3, 1.25, 1], y: [8, -6, 0], rotate: [-8, 4, 0] }}
+                    transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+                  >
+                    {placedLetters[i]}
+                  </motion.span>
+                ) : (
+                  <span className="game__slot-underscore" />
+                )}
+                {landingSlot === i && <span className="game__slot-ripple" />}
+              </div>
+            ))}
+          </div>
+          {phase === 'playing' && (
+            <button
+              type="button"
+              className="game__hint-btn"
+              onClick={handleShowWordAgain}
+              disabled={wordHintActive || flyingLetter !== null}
+            >
+              Show word again
+              <span className="game__hint-cost">−{WORD_HINT_PENALTY}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <BadgeToast badgeId={badgeToast} />
