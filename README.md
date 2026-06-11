@@ -29,6 +29,23 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages
+
+The built site is output to `docs/` for hosting at:
+
+https://planomy.github.io/spelldrop/
+
+In the repo **Settings → Pages**, set source to **main** branch, **/docs** folder.
+
+Rebuild and push after changes:
+
+```bash
+npm run build
+git add docs
+git commit -m "Update GitHub Pages build"
+git push
+```
+
 ## How to Play
 
 1. Enter a list of words (or load a sample list)
