@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ProgressMeter from './ProgressMeter'
-import GameLogo from './GameLogo'
 import StreakBanner from './StreakBanner'
 import GoalsBar from './GoalsBar'
 import BadgeToast from './BadgeToast'
@@ -241,7 +240,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
 
   function processNewBadges(stats: SessionStats, currentScore: number) {
     const { playerProgress: pp, sessionBadges: sb, sessionUpgrades: su } = progressRef.current
-    const newBadges = checkBadges(stats, currentScore, [...pp.unlockedBadges, ...sb])
+    const newBadges = checkBadges(stats, currentScore, [...pp.unlockedBadges, ...sb], 'spell')
     if (newBadges.length === 0) return
 
     const updatedBadges = [...sb, ...newBadges]
@@ -784,15 +783,21 @@ export default function GameScreen({ words, settings, onBack }: Props) {
   return (
     <div ref={gameStageRef} className="game">
       <div className="game__hud">
-        <div className="game__hud-brand">
-          <button className="game__back" onClick={onBack} aria-label="Back to setup">
-            ←
-          </button>
-          <GameLogo size="sm" className="game__hud-logo" />
-        </div>
+        <button type="button" className="game__back" onClick={onBack} aria-label="Back to setup">
+          ←
+        </button>
         <div className="game__hud-body">
-          <div className="game__hud-row">
+          <div className="game__hud-top">
             <span className="game__hud-word">{wordIndex + 1}/{words.length}</span>
+            <span className="game__hud-score">{score.toLocaleString()}</span>
+          </div>
+          <ProgressMeter
+            compact
+            percent={progressPercent}
+            correctLetters={correctCount}
+            totalLetters={totalLetters}
+          />
+          <div className="game__hud-meta">
             <StreakBanner streak={sessionStats.letterStreak} compact />
             {phase === 'playing' && (
               <GoalsBar
@@ -803,14 +808,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
                 score={score}
               />
             )}
-            <span className="game__hud-score">{score.toLocaleString()}</span>
           </div>
-          <ProgressMeter
-            compact
-            percent={progressPercent}
-            correctLetters={correctCount}
-            totalLetters={totalLetters}
-          />
         </div>
       </div>
 

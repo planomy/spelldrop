@@ -26,11 +26,14 @@ export interface SessionStats {
   wordsCompleted: number
   wrongHitsThisWord: number
   perfectWordStreak: number
+  bestPerfectStreak: number
   longestWord: number
   streakBonusTotal: number
   ninjaBonusTotal: number
   speedBonusTotal: number
 }
+
+export type BadgeGameMode = 'spell' | 'math'
 
 export interface PlayerProgress {
   unlockedBadges: string[]
@@ -41,18 +44,18 @@ export interface PlayerProgress {
 }
 
 export const BADGES: Badge[] = [
-  { id: 'streak-5', name: 'On Fire', description: '5 letter streak' },
-  { id: 'streak-10', name: 'Unstoppable', description: '10 letter streak' },
-  { id: 'streak-15', name: 'Legendary', description: '15 letter streak' },
-  { id: 'ninja-3', name: 'Shadow Catcher', description: '3 ninja swipes' },
-  { id: 'ninja-8', name: 'Ninja Master', description: '8 ninja swipes' },
-  { id: 'lightning', name: 'Speed Demon', description: 'Lightning-fast word' },
-  { id: 'lightning-3', name: 'Storm Chaser', description: '3 lightning words' },
+  { id: 'streak-5', name: 'On Fire', description: '10 letter streak' },
+  { id: 'streak-10', name: 'Unstoppable', description: '20 letter streak' },
+  { id: 'streak-15', name: 'Legendary', description: '35 letter streak' },
+  { id: 'ninja-3', name: 'Shadow Catcher', description: '5 ninja swipes in one game' },
+  { id: 'ninja-8', name: 'Ninja Master', description: '12 ninja swipes in one game' },
+  { id: 'lightning', name: 'Speed Demon', description: 'Lightning-fast finish' },
+  { id: 'lightning-3', name: 'Storm Chaser', description: '5 lightning-fast finishes' },
   { id: 'perfect', name: 'Flawless', description: 'Perfect word — no mistakes' },
-  { id: 'perfect-3', name: 'Perfectionist', description: '3 perfect words in a row' },
+  { id: 'perfect-3', name: 'Perfectionist', description: '5 perfect words in a row' },
   { id: 'long-word', name: 'Big Brain', description: 'Spell an 8+ letter word' },
-  { id: 'score-500', name: 'Word Warrior', description: '500+ points in one game' },
-  { id: 'score-1000', name: 'Spelling Champion', description: '1000+ points in one game' },
+  { id: 'score-500', name: 'Word Warrior', description: '750+ points in one game' },
+  { id: 'score-1000', name: 'Spelling Champion', description: '1500+ points in one game' },
 ]
 
 export const UPGRADES: Upgrade[] = [
@@ -74,6 +77,7 @@ export function createSessionStats(): SessionStats {
     wordsCompleted: 0,
     wrongHitsThisWord: 0,
     perfectWordStreak: 0,
+    bestPerfectStreak: 0,
     longestWord: 0,
     streakBonusTotal: 0,
     ninjaBonusTotal: 0,
@@ -165,24 +169,38 @@ export function checkBadges(
   stats: SessionStats,
   score: number,
   alreadyUnlocked: string[],
+  mode: BadgeGameMode,
 ): string[] {
   const earned: string[] = []
   const tryAward = (id: string, condition: boolean) => {
     if (condition && !alreadyUnlocked.includes(id) && !earned.includes(id)) earned.push(id)
   }
 
-  tryAward('streak-5', stats.bestLetterStreak >= 5)
-  tryAward('streak-10', stats.bestLetterStreak >= 10)
-  tryAward('streak-15', stats.bestLetterStreak >= 15)
-  tryAward('ninja-3', stats.ninjaCaptures >= 3)
-  tryAward('ninja-8', stats.ninjaCaptures >= 8)
+  if (mode === 'spell') {
+    tryAward('streak-5', stats.bestLetterStreak >= 10)
+    tryAward('streak-10', stats.bestLetterStreak >= 20)
+    tryAward('streak-15', stats.bestLetterStreak >= 35)
+    tryAward('ninja-3', stats.ninjaCaptures >= 5)
+    tryAward('ninja-8', stats.ninjaCaptures >= 12)
+    tryAward('lightning', stats.lightningWords >= 1)
+    tryAward('lightning-3', stats.lightningWords >= 5)
+    tryAward('perfect', stats.perfectWords >= 1)
+    tryAward('perfect-3', stats.bestPerfectStreak >= 5)
+    tryAward('long-word', stats.longestWord >= 8)
+    tryAward('score-500', score >= 750)
+    tryAward('score-1000', score >= 1500)
+    return earned
+  }
+
+  tryAward('streak-5', stats.bestPerfectStreak >= 8)
+  tryAward('streak-10', stats.bestPerfectStreak >= 15)
+  tryAward('streak-15', stats.bestPerfectStreak >= 25)
+  tryAward('ninja-3', stats.ninjaCaptures >= 6)
+  tryAward('ninja-8', stats.ninjaCaptures >= 15)
   tryAward('lightning', stats.lightningWords >= 1)
-  tryAward('lightning-3', stats.lightningWords >= 3)
-  tryAward('perfect', stats.perfectWords >= 1)
-  tryAward('perfect-3', stats.perfectWordStreak >= 3)
-  tryAward('long-word', stats.longestWord >= 8)
-  tryAward('score-500', score >= 500)
-  tryAward('score-1000', score >= 1000)
+  tryAward('lightning-3', stats.lightningWords >= 8)
+  tryAward('score-500', score >= 600)
+  tryAward('score-1000', score >= 1200)
 
   return earned
 }
@@ -258,10 +276,11 @@ export function recordWordComplete(
   baseWordPoints: number,
   upgrades: string[],
 ): { stats: SessionStats; speedBonus: number; totalWordPoints: number } {
-  const isLightning = elapsedMs < 4000
+  const isLightning = elapsedMs < 3000
   const isPerfect = stats.wrongHitsThisWord === 0
   const speedBonus = calcSpeedBonus(baseWordPoints, isLightning, upgrades)
   const totalWordPoints = baseWordPoints + speedBonus
+  const perfectWordStreak = isPerfect ? stats.perfectWordStreak + 1 : 0
 
   return {
     stats: {
@@ -269,12 +288,40 @@ export function recordWordComplete(
       wordsCompleted: stats.wordsCompleted + 1,
       lightningWords: isLightning ? stats.lightningWords + 1 : stats.lightningWords,
       perfectWords: isPerfect ? stats.perfectWords + 1 : stats.perfectWords,
-      perfectWordStreak: isPerfect ? stats.perfectWordStreak + 1 : 0,
+      perfectWordStreak,
+      bestPerfectStreak: Math.max(stats.bestPerfectStreak, perfectWordStreak),
       longestWord: Math.max(stats.longestWord, wordLength),
       wrongHitsThisWord: 0,
       speedBonusTotal: stats.speedBonusTotal + speedBonus,
     },
     speedBonus,
     totalWordPoints,
+  }
+}
+
+export function recordProblemComplete(
+  stats: SessionStats,
+  elapsedMs: number,
+  basePoints: number,
+  upgrades: string[],
+): { stats: SessionStats; speedBonus: number; totalPoints: number } {
+  const isLightning = elapsedMs < 2500
+  const isPerfect = stats.wrongHitsThisWord === 0
+  const speedBonus = calcSpeedBonus(basePoints, isLightning, upgrades)
+  const totalPoints = basePoints + speedBonus
+  const perfectStreak = isPerfect ? stats.perfectWordStreak + 1 : 0
+
+  return {
+    stats: {
+      ...stats,
+      wordsCompleted: stats.wordsCompleted + 1,
+      lightningWords: isLightning ? stats.lightningWords + 1 : stats.lightningWords,
+      perfectWordStreak: perfectStreak,
+      bestPerfectStreak: Math.max(stats.bestPerfectStreak, perfectStreak),
+      wrongHitsThisWord: 0,
+      speedBonusTotal: stats.speedBonusTotal + speedBonus,
+    },
+    speedBonus,
+    totalPoints,
   }
 }

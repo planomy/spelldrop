@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import GameLogo from './GameLogo'
 import StreakBanner from './StreakBanner'
 import GoalsBar from './GoalsBar'
 import BadgeToast from './BadgeToast'
@@ -24,7 +23,7 @@ import {
   unlockUpgradesForBadges,
   recordCorrectCapture,
   recordWrongHit,
-  recordWordComplete,
+  recordProblemComplete,
   type SessionStats,
   type PlayerProgress,
   type Goal,
@@ -173,7 +172,7 @@ export default function MathGameScreen({ settings, onBack }: Props) {
   function processNewBadges(stats: SessionStats, currentScore: number) {
     const { playerProgress: pp, sessionBadges: sb } = progressRef.current
     const allBadges = [...new Set([...pp.unlockedBadges, ...sb])]
-    const newBadges = checkBadges(stats, currentScore, allBadges)
+    const newBadges = checkBadges(stats, currentScore, allBadges, 'math')
     if (newBadges.length === 0) return
 
     const updatedBadges = [...new Set([...sb, ...newBadges])]
@@ -399,17 +398,17 @@ export default function MathGameScreen({ settings, onBack }: Props) {
   function completeProblem(_char: string) {
     const elapsed = Date.now() - problemStartRef.current
     const basePoints = elapsed < 3000 ? 80 : elapsed < 6000 ? 55 : 40
-    const result = recordWordComplete(sessionStatsRef.current, 1, elapsed, basePoints, activeUpgrades)
+    const result = recordProblemComplete(sessionStatsRef.current, elapsed, basePoints, activeUpgrades)
     sessionStatsRef.current = result.stats
     setSessionStats(result.stats)
     setProblemsSolved((p) => p + 1)
 
     setScore((s) => {
-      const newScore = s + result.totalWordPoints
+      const newScore = s + result.totalPoints
       processNewBadges(result.stats, newScore)
       return newScore
     })
-    setLastPoints(result.totalWordPoints)
+    setLastPoints(result.totalPoints)
     gameStateRef.current.flyingLetter = null
     setFlyingLetter(null)
     setSuccessPulse(true)
@@ -679,18 +678,21 @@ export default function MathGameScreen({ settings, onBack }: Props) {
   return (
     <div ref={gameStageRef} className={`game math-game ${wrongFlash ? 'game--wrong' : ''} ${successPulse ? 'game--success' : ''}`}>
       <div className="game__hud">
-        <div className="game__hud-brand">
-          <button type="button" className="game__back" onClick={onBack} aria-label="Back to setup">
-            ←
-          </button>
-          <GameLogo size="sm" className="game__hud-logo" />
-        </div>
+        <button type="button" className="game__back" onClick={onBack} aria-label="Back to setup">
+          ←
+        </button>
         <div className="game__hud-body">
-          <div className="game__hud-row">
-            <div className="game__math-timer">
+          <div className="game__hud-top">
+            <div className="game__math-timer game__math-timer--inline">
               <span className="game__math-timer-label">Time</span>
               <span className="game__math-timer-value">{formatTime(timeLeft)}</span>
             </div>
+            <span className="game__hud-score">{score.toLocaleString()}</span>
+          </div>
+          <div className="game__math-timer-bar game__math-timer-bar--wide">
+            <div className="game__math-timer-fill" style={{ width: `${timerPercent}%` }} />
+          </div>
+          <div className="game__hud-meta">
             <StreakBanner streak={sessionStats.letterStreak} compact />
             {phase === 'playing' && (
               <GoalsBar
@@ -701,10 +703,6 @@ export default function MathGameScreen({ settings, onBack }: Props) {
                 score={score}
               />
             )}
-            <span className="game__hud-score">{score.toLocaleString()}</span>
-          </div>
-          <div className="game__math-timer-bar game__math-timer-bar--wide">
-            <div className="game__math-timer-fill" style={{ width: `${timerPercent}%` }} />
           </div>
         </div>
       </div>

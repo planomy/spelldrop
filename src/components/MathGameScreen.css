@@ -121,10 +121,26 @@
   margin: auto;
 }
 
+.game__math-timer--inline {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
 .math-game .game__hud .game__math-timer-value {
-  font-size: 2.1rem;
+  font-size: 1.15rem;
 }
 
 .math-game .game__hud .game__math-timer-label {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
+}
+
+.display-mode .goals--header .game-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.display-mode .goals--header .goals__item {
+  padding: 0.4rem;
 }
