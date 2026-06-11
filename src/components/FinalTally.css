@@ -73,6 +73,9 @@
 }
 
 .tally__bonus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.72rem;
   padding: 0.25rem 0.55rem;
   background: rgba(124, 58, 237, 0.15);
@@ -103,9 +106,18 @@
 }
 
 .tally__goal {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.78rem;
   color: var(--white-dim);
   padding: 0.2rem 0;
+}
+
+.tally__goal-status {
+  flex-shrink: 0;
+  width: 0.85rem;
+  text-align: center;
 }
 
 .tally__goal--done {
@@ -131,8 +143,9 @@
   min-width: 72px;
 }
 
-.tally__badge-emoji {
-  font-size: 1.5rem;
+.tally__badge-icon {
+  width: 2.75rem;
+  height: 2.75rem;
 }
 
 .tally__badge-name {

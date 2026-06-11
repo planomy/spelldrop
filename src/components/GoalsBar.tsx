@@ -1,5 +1,7 @@
 import type { Goal, SessionStats } from '../progression'
 import { isGoalComplete } from '../progression'
+import { goalIcon } from '../icons'
+import GameIcon from './GameIcon'
 import './GoalsBar.css'
 
 interface Props {
@@ -26,9 +28,10 @@ export default function GoalsBar({ goals, stats, wordCount, score, compact, vari
       <div className="goals__list" title={isHeader ? `Goals ${completed}/${goals.length}` : undefined}>
         {goals.map((goal) => {
           const done = isGoalComplete(goal.id, stats, wordCount, score)
+          const icon = goalIcon(goal.id)
           return (
             <div key={goal.id} className={`goals__item ${done ? 'goals__item--done' : ''}`} title={goal.label}>
-              <span className="goals__emoji">{goal.emoji}</span>
+              {icon && <GameIcon src={icon} alt={goal.label} size={isHeader ? 'xs' : 'sm'} />}
               {!isHeader && <span className="goals__label">{goal.label}</span>}
               {done && <span className="goals__check">✓</span>}
             </div>

@@ -638,122 +638,130 @@ export default function MathGameScreen({ settings, onBack }: Props) {
   const timerPercent = (timeLeft / settings.durationSeconds) * 100
 
   return (
-    <div className={`game math-game ${wrongFlash ? 'game--wrong' : ''} ${successPulse ? 'game--success' : ''}`}>
+    <div ref={gameStageRef} className={`game math-game ${wrongFlash ? 'game--wrong' : ''} ${successPulse ? 'game--success' : ''}`}>
       <div className="game__hud">
-        <button type="button" className="game__back" onClick={onBack}>
-          ← Back
+        <button type="button" className="game__back" onClick={onBack} aria-label="Back to setup">
+          ←
         </button>
-        <div className="game__score-block">
-          <span className="game__score-label">Score</span>
-          <span className="game__score">{score.toLocaleString()}</span>
-        </div>
-        <div className="game__math-timer">
-          <span className="game__math-timer-label">Time</span>
-          <span className="game__math-timer-value">{formatTime(timeLeft)}</span>
-          <div className="game__math-timer-bar">
+        <div className="game__hud-body">
+          <div className="game__hud-row">
+            <div className="game__math-timer">
+              <span className="game__math-timer-label">Time</span>
+              <span className="game__math-timer-value">{formatTime(timeLeft)}</span>
+            </div>
+            <StreakBanner streak={sessionStats.letterStreak} compact />
+            {phase === 'playing' && (
+              <GoalsBar
+                variant="header"
+                goals={goals}
+                stats={sessionStats}
+                wordCount={15}
+                score={score}
+              />
+            )}
+            <span className="game__hud-score">{score.toLocaleString()}</span>
+          </div>
+          <div className="game__math-timer-bar game__math-timer-bar--wide">
             <div className="game__math-timer-fill" style={{ width: `${timerPercent}%` }} />
           </div>
         </div>
-        <StreakBanner streak={sessionStats.letterStreak} />
       </div>
 
-      <GoalsBar goals={goals} stats={sessionStats} wordCount={15} score={score} />
-
-      <div className="game__main">
-        <div className="game__stage-wrap">
+      <div className="game__playfield">
+        <div className="game__area-wrap">
           <div
-            ref={gameStageRef}
-            className="game__stage"
+            ref={gameAreaRef}
+            className={`game__area ${wrongFlash ? 'game__area--wrong' : ''} ${successPulse ? 'game__area--success' : ''}`}
             onPointerDown={handlePointerDown}
+            onPointerUp={(e) => processPointerUp(e.clientX, e.clientY, e.pointerId)}
+            onPointerCancel={(e) => processPointerUp(e.clientX, e.clientY, e.pointerId)}
           >
-            <div ref={gameAreaRef} className="game__area">
-              {fallingLetters.map((letter) => (
-                <div
-                  key={letter.id}
-                  data-letter-id={letter.id}
-                  className="game__falling-letter game__falling-number"
-                  style={{
-                    left: letter.x,
-                    top: letter.y,
-                    transform: `rotate(${letter.rotation}deg)`,
-                  }}
-                >
-                  {letter.char}
-                </div>
-              ))}
+            {fallingLetters.map((letter) => (
+              <div
+                key={letter.id}
+                data-letter-id={letter.id}
+                className="game__falling-letter game__falling-number"
+                style={{
+                  left: letter.x,
+                  top: letter.y,
+                  transform: `rotate(${letter.rotation}deg)`,
+                }}
+              >
+                {letter.char}
+              </div>
+            ))}
 
-              {destroyingLetters.map((d) => (
-                <div
-                  key={`destroy-${d.id}`}
-                  className={`game__destroy-letter ${d.type === 'slice' ? 'game__destroy-letter--slice' : ''}`}
-                  style={{
-                    left: d.x,
-                    top: d.y,
-                    transform: `rotate(${d.rotation}deg)`,
-                    ['--slash-angle' as string]: `${d.slashAngle}rad`,
-                  }}
-                >
-                  {d.char}
-                </div>
-              ))}
-            </div>
+            {destroyingLetters.map((d) => (
+              <div
+                key={`destroy-${d.id}`}
+                className={`game__destroy-letter ${d.type === 'slice' ? 'game__destroy-letter--slice' : ''}`}
+                style={{
+                  left: d.x,
+                  top: d.y,
+                  transform: `rotate(${d.rotation}deg)`,
+                  ['--slash-angle' as string]: `${d.slashAngle}rad`,
+                }}
+              >
+                {d.char}
+              </div>
+            ))}
+          </div>
 
-            <div className="game__overlay">
-              <AnimatePresence>
-                {phase === 'countdown' && (
-                  <motion.div
-                    key="countdown"
-                    className="game__math-countdown"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 1.5 }}
-                  >
-                    {countdown > 0 ? countdown : 'GO!'}
-                  </motion.div>
-                )}
-                {phase === 'problem-done' && (
-                  <motion.div
-                    key="points"
-                    className="game__word-done"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <span className="game__word-done-bonus">+{lastPoints}</span>
-                  </motion.div>
-                )}
-                {phase === 'complete' && (
-                  <FinalTally
-                    score={score}
-                    stats={sessionStats}
-                    sessionBadges={sessionBadges}
-                    sessionUpgrades={sessionUpgrades}
-                    goals={goals}
-                    wordCount={15}
-                    onPlayAgain={onBack}
-                    highScore={Math.max(playerProgress.highScore, score)}
-                    isNewHighScore={score > playerProgress.highScore}
-                  />
-                )}
-              </AnimatePresence>
+          <div className="math-game__problem-dock">
+            {phase === 'playing' && slotsMessage && (
+              <div className={`game__slots-message game__slots-message--${slotsMessage.tone}`}>
+                {slotsMessage.text}
+              </div>
+            )}
+            <div
+              ref={problemRef}
+              className={`math-game__problem ${successPulse ? 'math-game__problem--pulse' : ''}`}
+            >
+              <span className="math-game__problem-label">Solve</span>
+              <span className="math-game__problem-text">{formatProblem(problem)}</span>
+              <span className="math-game__problem-solved">{problemsSolved} solved</span>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="game__slots-section math-game__problem-section">
-        {phase === 'playing' && slotsMessage && (
-          <div className={`game__slots-message game__slots-message--${slotsMessage.tone}`}>
-            {slotsMessage.text}
+          <div className="game__overlay">
+            <AnimatePresence>
+              {phase === 'countdown' && (
+                <motion.div
+                  key="countdown"
+                  className="game__math-countdown"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.5 }}
+                >
+                  {countdown > 0 ? countdown : 'GO!'}
+                </motion.div>
+              )}
+              {phase === 'problem-done' && (
+                <motion.div
+                  key="points"
+                  className="game__word-done"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <span className="game__word-done-bonus">+{lastPoints}</span>
+                </motion.div>
+              )}
+              {phase === 'complete' && (
+                <FinalTally
+                  score={score}
+                  stats={sessionStats}
+                  sessionBadges={sessionBadges}
+                  sessionUpgrades={sessionUpgrades}
+                  goals={goals}
+                  wordCount={15}
+                  onPlayAgain={onBack}
+                  highScore={Math.max(playerProgress.highScore, score)}
+                  isNewHighScore={score > playerProgress.highScore}
+                />
+              )}
+            </AnimatePresence>
           </div>
-        )}
-        <div
-          ref={problemRef}
-          className={`math-game__problem ${successPulse ? 'math-game__problem--pulse' : ''}`}
-        >
-          <span className="math-game__problem-label">Solve</span>
-          <span className="math-game__problem-text">{formatProblem(problem)}</span>
-          <span className="math-game__problem-solved">{problemsSolved} solved</span>
         </div>
       </div>
 

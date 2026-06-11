@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { getBadge } from '../progression'
+import { badgeIcon } from '../icons'
+import GameIcon from './GameIcon'
 import './BadgeToast.css'
 
 interface Props {
@@ -8,10 +10,11 @@ interface Props {
 
 export default function BadgeToast({ badgeId }: Props) {
   const badge = badgeId ? getBadge(badgeId) : null
+  const icon = badge ? badgeIcon(badge.id) : undefined
 
   return (
     <AnimatePresence>
-      {badge && (
+      {badge && icon && (
         <motion.div
           key={badge.id}
           className="badge-toast"
@@ -21,7 +24,7 @@ export default function BadgeToast({ badgeId }: Props) {
           transition={{ type: 'spring', stiffness: 300, damping: 22 }}
         >
           <span className="badge-toast__tag">Badge Unlocked!</span>
-          <span className="badge-toast__emoji">{badge.emoji}</span>
+          <GameIcon src={icon} alt={badge.name} size="lg" className="badge-toast__icon" />
           <div className="badge-toast__info">
             <span className="badge-toast__name">{badge.name}</span>
             <span className="badge-toast__desc">{badge.description}</span>

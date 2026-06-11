@@ -30,8 +30,7 @@
   border-radius: 6px;
 }
 
-.badge-toast__emoji {
-  font-size: 1.75rem;
+.badge-toast__icon {
   flex-shrink: 0;
 }
 

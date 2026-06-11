@@ -1,5 +1,20 @@
-.math-game__problem-section {
-  justify-content: center;
+.math-game .game__area {
+  min-height: 280px;
+}
+
+.math-game__problem-dock {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.5rem 0.7rem;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(10, 10, 10, 0.92) 35%, transparent 100%);
 }
 
 .math-game__problem {
@@ -86,6 +101,10 @@
   overflow: hidden;
 }
 
+.game__math-timer-bar--wide {
+  width: 100%;
+}
+
 .game__math-timer-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--purple) 0%, var(--purple-light) 100%);
@@ -99,4 +118,13 @@
   color: var(--purple-light);
   text-shadow: 0 0 50px rgba(124, 58, 237, 0.6);
   pointer-events: none;
+  margin: auto;
+}
+
+.math-game .game__hud .game__math-timer-value {
+  font-size: 2.1rem;
+}
+
+.math-game .game__hud .game__math-timer-label {
+  font-size: 0.65rem;
 }

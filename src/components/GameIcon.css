@@ -1,0 +1,32 @@
+.game-icon {
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+.game-icon--xs {
+  width: 1rem;
+  height: 1rem;
+}
+
+.game-icon--sm {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.game-icon--md {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.game-icon--lg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.game-icon--xl {
+  width: 3.25rem;
+  height: 3.25rem;
+}

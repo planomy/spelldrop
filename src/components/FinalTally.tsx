@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { useCountUp } from '../hooks/useCountUp'
 import { getBadge, getUpgrade, type Goal, type SessionStats } from '../progression'
 import { isGoalComplete } from '../progression'
+import { BONUS_ICONS, badgeIcon, goalIcon, upgradeIcon } from '../icons'
+import GameIcon from './GameIcon'
 import './FinalTally.css'
 
 interface Props {
@@ -54,13 +56,22 @@ export default function FinalTally({
       {(stats.streakBonusTotal > 0 || stats.ninjaBonusTotal > 0 || stats.speedBonusTotal > 0) && (
         <div className="tally__bonuses">
           {stats.streakBonusTotal > 0 && (
-            <span className="tally__bonus">🔥 Streak +{stats.streakBonusTotal}</span>
+            <span className="tally__bonus">
+              <GameIcon src={BONUS_ICONS.streak} alt="Streak bonus" size="xs" />
+              Streak +{stats.streakBonusTotal}
+            </span>
           )}
           {stats.ninjaBonusTotal > 0 && (
-            <span className="tally__bonus">🥷 Ninja +{stats.ninjaBonusTotal}</span>
+            <span className="tally__bonus">
+              <GameIcon src={BONUS_ICONS.ninja} alt="Ninja bonus" size="xs" />
+              Ninja +{stats.ninjaBonusTotal}
+            </span>
           )}
           {stats.speedBonusTotal > 0 && (
-            <span className="tally__bonus">💨 Speed +{stats.speedBonusTotal}</span>
+            <span className="tally__bonus">
+              <GameIcon src={BONUS_ICONS.speed} alt="Speed bonus" size="xs" />
+              Speed +{stats.speedBonusTotal}
+            </span>
           )}
         </div>
       )}
@@ -70,6 +81,7 @@ export default function FinalTally({
         <div className="tally__goals">
           {goals.map((goal, i) => {
             const done = isGoalComplete(goal.id, stats, wordCount, score)
+            const icon = goalIcon(goal.id)
             return (
               <motion.span
                 key={goal.id}
@@ -78,7 +90,9 @@ export default function FinalTally({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8 + i * 0.1 }}
               >
-                {goal.emoji} {done ? '✓' : '○'} {goal.label}
+                {icon && <GameIcon src={icon} alt={goal.label} size="xs" />}
+                <span className="tally__goal-status">{done ? '✓' : '○'}</span>
+                {goal.label}
               </motion.span>
             )
           })}
@@ -91,7 +105,8 @@ export default function FinalTally({
           <div className="tally__badges">
             {sessionBadges.map((id, i) => {
               const badge = getBadge(id)
-              if (!badge) return null
+              const icon = badgeIcon(id)
+              if (!badge || !icon) return null
               return (
                 <motion.div
                   key={id}
@@ -100,7 +115,7 @@ export default function FinalTally({
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
                   transition={{ delay: 1.2 + i * 0.15, type: 'spring', stiffness: 260, damping: 16 }}
                 >
-                  <span className="tally__badge-emoji">{badge.emoji}</span>
+                  <GameIcon src={icon} alt={badge.name} size="lg" className="tally__badge-icon" />
                   <span className="tally__badge-name">{badge.name}</span>
                 </motion.div>
               )
@@ -115,7 +130,8 @@ export default function FinalTally({
           <div className="tally__upgrades">
             {sessionUpgrades.map((id, i) => {
               const upgrade = getUpgrade(id)
-              if (!upgrade) return null
+              const icon = upgradeIcon(id)
+              if (!upgrade || !icon) return null
               return (
                 <motion.div
                   key={id}
@@ -124,7 +140,7 @@ export default function FinalTally({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.6 + i * 0.12 }}
                 >
-                  <span>{upgrade.emoji}</span>
+                  <GameIcon src={icon} alt={upgrade.name} size="sm" />
                   <div>
                     <strong>{upgrade.name}</strong>
                     <small>{upgrade.description}</small>

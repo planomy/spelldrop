@@ -87,8 +87,9 @@
   border-radius: 40px;
 }
 
-.game__hud .goals--header .goals__emoji {
-  font-size: 2.4rem;
+.game__hud .goals--header .game-icon {
+  width: 2.4rem;
+  height: 2.4rem;
 }
 
 .game__hud .goals--header .goals__check {

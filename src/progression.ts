@@ -1,14 +1,12 @@
 export interface Badge {
   id: string
   name: string
-  emoji: string
   description: string
 }
 
 export interface Upgrade {
   id: string
   name: string
-  emoji: string
   description: string
   unlockBadgeId: string
 }
@@ -16,7 +14,6 @@ export interface Upgrade {
 export interface Goal {
   id: string
   label: string
-  emoji: string
 }
 
 export interface SessionStats {
@@ -44,24 +41,24 @@ export interface PlayerProgress {
 }
 
 export const BADGES: Badge[] = [
-  { id: 'streak-5', name: 'On Fire', emoji: '🔥', description: '5 letter streak' },
-  { id: 'streak-10', name: 'Unstoppable', emoji: '⚡', description: '10 letter streak' },
-  { id: 'streak-15', name: 'Legendary', emoji: '👑', description: '15 letter streak' },
-  { id: 'ninja-3', name: 'Shadow Catcher', emoji: '🥷', description: '3 ninja swipes' },
-  { id: 'ninja-8', name: 'Ninja Master', emoji: '🗡️', description: '8 ninja swipes' },
-  { id: 'lightning', name: 'Speed Demon', emoji: '💨', description: 'Lightning-fast word' },
-  { id: 'lightning-3', name: 'Storm Chaser', emoji: '🌩️', description: '3 lightning words' },
-  { id: 'perfect', name: 'Flawless', emoji: '✨', description: 'Perfect word — no mistakes' },
-  { id: 'perfect-3', name: 'Perfectionist', emoji: '💎', description: '3 perfect words in a row' },
-  { id: 'long-word', name: 'Big Brain', emoji: '🧠', description: 'Spell an 8+ letter word' },
-  { id: 'score-500', name: 'Word Warrior', emoji: '🏅', description: '500+ points in one game' },
-  { id: 'score-1000', name: 'Spelling Champion', emoji: '🏆', description: '1000+ points in one game' },
+  { id: 'streak-5', name: 'On Fire', description: '5 letter streak' },
+  { id: 'streak-10', name: 'Unstoppable', description: '10 letter streak' },
+  { id: 'streak-15', name: 'Legendary', description: '15 letter streak' },
+  { id: 'ninja-3', name: 'Shadow Catcher', description: '3 ninja swipes' },
+  { id: 'ninja-8', name: 'Ninja Master', description: '8 ninja swipes' },
+  { id: 'lightning', name: 'Speed Demon', description: 'Lightning-fast word' },
+  { id: 'lightning-3', name: 'Storm Chaser', description: '3 lightning words' },
+  { id: 'perfect', name: 'Flawless', description: 'Perfect word — no mistakes' },
+  { id: 'perfect-3', name: 'Perfectionist', description: '3 perfect words in a row' },
+  { id: 'long-word', name: 'Big Brain', description: 'Spell an 8+ letter word' },
+  { id: 'score-500', name: 'Word Warrior', description: '500+ points in one game' },
+  { id: 'score-1000', name: 'Spelling Champion', description: '1000+ points in one game' },
 ]
 
 export const UPGRADES: Upgrade[] = [
-  { id: 'streak-boost', name: 'Streak Boost', emoji: '🔥', description: '+5 pts per streak level', unlockBadgeId: 'streak-5' },
-  { id: 'ninja-fury', name: 'Ninja Fury', emoji: '🥷', description: '+30 pts per ninja swipe', unlockBadgeId: 'ninja-3' },
-  { id: 'speed-demon', name: 'Speed Demon', emoji: '💨', description: '+15% on lightning words', unlockBadgeId: 'lightning' },
+  { id: 'streak-boost', name: 'Streak Boost', description: '+5 pts per streak level', unlockBadgeId: 'streak-5' },
+  { id: 'ninja-fury', name: 'Ninja Fury', description: '+30 pts per ninja swipe', unlockBadgeId: 'ninja-3' },
+  { id: 'speed-demon', name: 'Speed Demon', description: '+15% on lightning words', unlockBadgeId: 'lightning' },
 ]
 
 const STORAGE_KEY = 'spelldrop-progress'
@@ -133,21 +130,21 @@ export function getUpgrade(id: string): Upgrade | undefined {
 
 export function buildGoals(wordCount: number): Goal[] {
   return [
-    { id: 'complete-all', label: `Spell all ${wordCount} words`, emoji: '🎯' },
-    { id: 'streak-5', label: 'Hit a 5 letter streak', emoji: '🔥' },
-    { id: 'ninja-3', label: 'Ninja swipe 3 letters', emoji: '🥷' },
-    { id: 'lightning-1', label: 'Get a lightning-fast word', emoji: '💨' },
-    { id: 'score-500', label: 'Score 500+ points', emoji: '🏅' },
+    { id: 'complete-all', label: `Spell all ${wordCount} words` },
+    { id: 'streak-5', label: 'Hit a 5 letter streak' },
+    { id: 'ninja-3', label: 'Ninja swipe 3 letters' },
+    { id: 'lightning-1', label: 'Get a lightning-fast word' },
+    { id: 'score-500', label: 'Score 500+ points' },
   ]
 }
 
 export function buildMathGoals(): Goal[] {
   return [
-    { id: 'solve-15', label: 'Solve 15 problems', emoji: '🎯' },
-    { id: 'streak-5', label: 'Hit a 5 answer streak', emoji: '🔥' },
-    { id: 'ninja-3', label: 'Ninja swipe 3 answers', emoji: '🥷' },
-    { id: 'lightning-3', label: '3 lightning-fast answers', emoji: '💨' },
-    { id: 'score-500', label: 'Score 500+ points', emoji: '🏅' },
+    { id: 'solve-15', label: 'Solve 15 problems' },
+    { id: 'streak-5', label: 'Hit a 5 answer streak' },
+    { id: 'ninja-3', label: 'Ninja swipe 3 answers' },
+    { id: 'lightning-3', label: '3 lightning-fast answers' },
+    { id: 'score-500', label: 'Score 500+ points' },
   ]
 }
 
