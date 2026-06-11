@@ -208,3 +208,204 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+.setup__mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.setup__mode-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.85rem 1rem;
+  background: rgba(124, 58, 237, 0.08);
+  border: 2px solid rgba(124, 58, 237, 0.2);
+  border-radius: 14px;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.setup__mode-tab:hover {
+  border-color: rgba(124, 58, 237, 0.45);
+  background: rgba(124, 58, 237, 0.14);
+}
+
+.setup__mode-tab--active {
+  background: rgba(124, 58, 237, 0.22);
+  border-color: var(--purple);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.25);
+}
+
+.setup__mode-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.setup__mode-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--white);
+}
+
+.setup__mode-desc {
+  font-size: 0.68rem;
+  color: var(--white-dim);
+  font-weight: 500;
+}
+
+.setup__shared {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.85rem 1rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 14px;
+  border: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.setup__shared-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--white-dim);
+}
+
+.setup__speed-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+}
+
+.setup__speed-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.45rem 0.25rem;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--purple-light);
+  transition: all 0.2s;
+}
+
+.setup__speed-btn:hover {
+  background: rgba(124, 58, 237, 0.22);
+  color: var(--white);
+}
+
+.setup__speed-btn--active {
+  background: var(--purple);
+  border-color: var(--purple-light);
+  color: var(--white);
+  box-shadow: 0 0 14px rgba(124, 58, 237, 0.4);
+}
+
+.setup__speed-emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.setup__speed-hint {
+  font-size: 0.68rem;
+  color: var(--white-dim);
+  margin: 0;
+  text-align: center;
+}
+
+.setup__mode-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setup__math-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.setup__table-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.setup__table-action {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(124, 58, 237, 0.12);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  color: var(--purple-light);
+}
+
+.setup__table-action:hover {
+  background: rgba(124, 58, 237, 0.25);
+  color: var(--white);
+}
+
+.setup__table-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.4rem;
+}
+
+.setup__table-btn {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: rgba(124, 58, 237, 0.1);
+  border: 2px solid rgba(124, 58, 237, 0.22);
+  border-radius: 12px;
+  color: var(--purple-light);
+  transition: all 0.18s;
+}
+
+.setup__table-btn:hover {
+  border-color: rgba(124, 58, 237, 0.5);
+  color: var(--white);
+}
+
+.setup__table-btn--active {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-deep) 100%);
+  border-color: var(--purple-light);
+  color: var(--white);
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.45);
+}
+
+.setup__math-example {
+  font-size: 0.78rem;
+  color: var(--white-dim);
+  text-align: center;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: rgba(124, 58, 237, 0.08);
+  border-radius: 10px;
+}
+
+.setup__math-example strong {
+  color: var(--purple-light);
+}
+
+@media (max-width: 420px) {
+  .setup__speed-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .setup__table-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

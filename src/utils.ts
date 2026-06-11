@@ -1,4 +1,5 @@
-import type { FallingLetter } from './types'
+import type { DropSpeed, FallingLetter } from './types'
+import { getFallSpeedMultiplier } from './dropSpeed'
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 export const MAX_FALLING_LETTERS = 14
@@ -46,17 +47,19 @@ export function createSpawnedLetter(
   word: string,
   nextLetterIndex: number,
   containerWidth: number,
+  dropSpeed: DropSpeed = 'normal',
 ): FallingLetter {
   const char = pickSpawnChar(word, nextLetterIndex)
   const padding = 56
   const usable = Math.max(containerWidth - padding * 2, 200)
+  const speedMul = getFallSpeedMultiplier(dropSpeed)
 
   return {
     id: `${char}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     char,
     x: padding + Math.random() * usable,
     y: -60 - Math.random() * 120,
-    speed: 0.45 + Math.random() * 0.55,
+    speed: (0.45 + Math.random() * 0.55) * speedMul,
     rotation: (Math.random() - 0.5) * 30,
     wobble: Math.random() * Math.PI * 2,
   }
@@ -66,10 +69,11 @@ export function createInitialBurst(
   word: string,
   nextLetterIndex: number,
   containerWidth: number,
+  dropSpeed: DropSpeed = 'normal',
   count = 5,
 ): FallingLetter[] {
   return Array.from({ length: count }, (_, i) => {
-    const letter = createSpawnedLetter(word, nextLetterIndex, containerWidth)
+    const letter = createSpawnedLetter(word, nextLetterIndex, containerWidth, dropSpeed)
     return { ...letter, y: -60 - i * 90 - Math.random() * 40 }
   })
 }

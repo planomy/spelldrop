@@ -1,6 +1,23 @@
-export interface GameSettings {
+export type GameMode = 'spell' | 'math'
+
+export type DropSpeed = 'chill' | 'normal' | 'fast' | 'turbo'
+
+export type MathDuration = 30 | 60 | 120
+
+export interface SpellSettings {
+  mode: 'spell'
   previewSeconds: number
+  dropSpeed: DropSpeed
 }
+
+export interface MathSettings {
+  mode: 'math'
+  tables: number[]
+  durationSeconds: MathDuration
+  dropSpeed: DropSpeed
+}
+
+export type GameSettings = SpellSettings | MathSettings
 
 export interface FallingLetter {
   id: string

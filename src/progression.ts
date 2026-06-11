@@ -40,6 +40,7 @@ export interface PlayerProgress {
   unlockedUpgrades: string[]
   totalGamesPlayed: number
   lifetimeScore: number
+  highScore: number
 }
 
 export const BADGES: Badge[] = [
@@ -83,18 +84,43 @@ export function createSessionStats(): SessionStats {
   }
 }
 
+function normalizeProgress(raw: Partial<PlayerProgress>): PlayerProgress {
+  return {
+    unlockedBadges: raw.unlockedBadges ?? [],
+    unlockedUpgrades: raw.unlockedUpgrades ?? [],
+    totalGamesPlayed: raw.totalGamesPlayed ?? 0,
+    lifetimeScore: raw.lifetimeScore ?? 0,
+    highScore: raw.highScore ?? 0,
+  }
+}
+
 export function loadProgress(): PlayerProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as PlayerProgress
+    if (raw) return normalizeProgress(JSON.parse(raw) as Partial<PlayerProgress>)
   } catch { /* ignore */ }
-  return { unlockedBadges: [], unlockedUpgrades: [], totalGamesPlayed: 0, lifetimeScore: 0 }
+  return normalizeProgress({})
 }
 
 export function saveProgress(progress: PlayerProgress) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeProgress(progress)))
   } catch { /* ignore */ }
+}
+
+export function recordGameEnd(
+  progress: PlayerProgress,
+  sessionBadges: string[],
+  sessionUpgrades: string[],
+  score: number,
+): PlayerProgress {
+  return normalizeProgress({
+    unlockedBadges: [...new Set([...progress.unlockedBadges, ...sessionBadges])],
+    unlockedUpgrades: [...new Set([...progress.unlockedUpgrades, ...sessionUpgrades])],
+    totalGamesPlayed: progress.totalGamesPlayed + 1,
+    lifetimeScore: progress.lifetimeScore + score,
+    highScore: Math.max(progress.highScore, score),
+  })
 }
 
 export function getBadge(id: string): Badge | undefined {
@@ -115,12 +141,24 @@ export function buildGoals(wordCount: number): Goal[] {
   ]
 }
 
+export function buildMathGoals(): Goal[] {
+  return [
+    { id: 'solve-15', label: 'Solve 15 problems', emoji: '🎯' },
+    { id: 'streak-5', label: 'Hit a 5 answer streak', emoji: '🔥' },
+    { id: 'ninja-3', label: 'Ninja swipe 3 answers', emoji: '🥷' },
+    { id: 'lightning-3', label: '3 lightning-fast answers', emoji: '💨' },
+    { id: 'score-500', label: 'Score 500+ points', emoji: '🏅' },
+  ]
+}
+
 export function isGoalComplete(goalId: string, stats: SessionStats, wordCount: number, score: number): boolean {
   switch (goalId) {
     case 'complete-all': return stats.wordsCompleted >= wordCount
+    case 'solve-15': return stats.wordsCompleted >= 15
     case 'streak-5': return stats.bestLetterStreak >= 5
     case 'ninja-3': return stats.ninjaCaptures >= 3
     case 'lightning-1': return stats.lightningWords >= 1
+    case 'lightning-3': return stats.lightningWords >= 3
     case 'score-500': return score >= 500
     default: return false
   }

@@ -12,6 +12,9 @@ interface Props {
   goals: Goal[]
   wordCount: number
   onPlayAgain: () => void
+  playAgainLabel?: string
+  highScore?: number
+  isNewHighScore?: boolean
 }
 
 export default function FinalTally({
@@ -22,6 +25,9 @@ export default function FinalTally({
   goals,
   wordCount,
   onPlayAgain,
+  playAgainLabel = 'Move On',
+  highScore,
+  isNewHighScore = false,
 }: Props) {
   const displayScore = useCountUp(score, true, 2200)
   const goalsDone = goals.filter((g) => isGoalComplete(g.id, stats, wordCount, score)).length
@@ -39,6 +45,10 @@ export default function FinalTally({
         <span className="tally__score-label">Final Score</span>
         <span className="tally__score">{displayScore.toLocaleString()}</span>
         <span className="tally__score-pts">points</span>
+        {isNewHighScore && <span className="tally__high-score-new">🎉 New high score!</span>}
+        {!isNewHighScore && highScore !== undefined && highScore > 0 && (
+          <span className="tally__high-score-best">Best: {highScore.toLocaleString()}</span>
+        )}
       </div>
 
       {(stats.streakBonusTotal > 0 || stats.ninjaBonusTotal > 0 || stats.speedBonusTotal > 0) && (
@@ -141,7 +151,7 @@ export default function FinalTally({
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.97 }}
       >
-        Play Again
+        {playAgainLabel}
       </motion.button>
     </motion.div>
   )

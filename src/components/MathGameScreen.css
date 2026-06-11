@@ -1,0 +1,102 @@
+.math-game__problem-section {
+  justify-content: center;
+}
+
+.math-game__problem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem 2rem;
+  background: rgba(124, 58, 237, 0.12);
+  border: 2px solid rgba(124, 58, 237, 0.4);
+  border-radius: 18px;
+  min-width: min(100%, 280px);
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.math-game__problem--pulse {
+  border-color: var(--success);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.45);
+}
+
+.math-game__problem-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--white-dim);
+  font-weight: 600;
+}
+
+.math-game__problem-text {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 10vw, 3.5rem);
+  color: var(--white);
+  text-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+  letter-spacing: 4px;
+  line-height: 1;
+}
+
+.math-game__problem-solved {
+  font-size: 0.72rem;
+  color: var(--purple-light);
+  font-weight: 500;
+}
+
+.game__falling-number {
+  min-width: 3.2rem;
+  padding: 0.35rem 0.5rem;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.4rem, 4vw, 1.85rem);
+}
+
+.game__flying-number .game__flying-letter-char {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+}
+
+.game__math-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 72px;
+}
+
+.game__math-timer-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--white-dim);
+  font-weight: 600;
+}
+
+.game__math-timer-value {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+
+.game__math-timer-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--black-soft);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.game__math-timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple) 0%, var(--purple-light) 100%);
+  border-radius: 2px;
+  transition: width 1s linear;
+}
+
+.game__math-countdown {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 18vw, 7rem);
+  color: var(--purple-light);
+  text-shadow: 0 0 50px rgba(124, 58, 237, 0.6);
+  pointer-events: none;
+}

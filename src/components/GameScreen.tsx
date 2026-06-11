@@ -5,10 +5,12 @@ import StreakBanner from './StreakBanner'
 import GoalsBar from './GoalsBar'
 import BadgeToast from './BadgeToast'
 import FinalTally from './FinalTally'
-import type { GameSettings, FallingLetter, GamePhase, WordScorePopup, FlyingLetterAnim, CaptureParticle, SwipeTrail, LetterDestroyAnim } from '../types'
+import type { SpellSettings, FallingLetter, GamePhase, WordScorePopup, FlyingLetterAnim, CaptureParticle, SwipeTrail, LetterDestroyAnim } from '../types'
+import { getSpawnIntervalMs } from '../dropSpeed'
 import {
   createSessionStats,
   loadProgress,
+  recordGameEnd,
   saveProgress,
   buildGoals,
   checkBadges,
@@ -62,7 +64,7 @@ interface SlotsMessage {
 
 interface Props {
   words: string[]
-  settings: GameSettings
+  settings: SpellSettings
   onBack: () => void
 }
 
@@ -288,12 +290,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
     if (phase !== 'all-complete' || savedRef.current) return
     savedRef.current = true
     const { playerProgress: pp, sessionBadges: sb, sessionUpgrades: su } = progressRef.current
-    saveProgress({
-      unlockedBadges: [...new Set([...pp.unlockedBadges, ...sb])],
-      unlockedUpgrades: [...new Set([...pp.unlockedUpgrades, ...su])],
-      totalGamesPlayed: pp.totalGamesPlayed + 1,
-      lifetimeScore: pp.lifetimeScore + score,
-    })
+    saveProgress(recordGameEnd(pp, sb, su, score))
   }, [phase, score])
 
   // Preview countdown
@@ -302,7 +299,7 @@ export default function GameScreen({ words, settings, onBack }: Props) {
 
     if (previewCountdown <= 0) {
       const width = gameAreaRef.current?.clientWidth ?? 600
-      const burst = createInitialBurst(currentWord, 0, width)
+      const burst = createInitialBurst(currentWord, 0, width, settings.dropSpeed)
       wordStartTimeRef.current = Date.now()
       fallingLettersRef.current = burst
       gameStateRef.current = {
@@ -375,15 +372,15 @@ export default function GameScreen({ words, settings, onBack }: Props) {
       const width = gameAreaRef.current?.clientWidth ?? 600
       setFallingLetters((prev) => {
         if (prev.length >= MAX_FALLING_LETTERS) return prev
-        const next = [...prev, createSpawnedLetter(currentWord, letterIndex, width)]
+        const next = [...prev, createSpawnedLetter(currentWord, letterIndex, width, settings.dropSpeed)]
         fallingLettersRef.current = next
         gameStateRef.current.fallingLetters = next
         return next
       })
-    }, SPAWN_INTERVAL_MS)
+    }, getSpawnIntervalMs(settings.dropSpeed, SPAWN_INTERVAL_MS))
 
     return () => clearInterval(interval)
-  }, [phase, currentWord, letterIndex])
+  }, [phase, currentWord, letterIndex, settings.dropSpeed])
 
   const lastTapRef = useRef(0)
 
@@ -1015,6 +1012,8 @@ export default function GameScreen({ words, settings, onBack }: Props) {
                   goals={goals}
                   wordCount={words.length}
                   onPlayAgain={onBack}
+                  highScore={Math.max(playerProgress.highScore, score)}
+                  isNewHighScore={score > playerProgress.highScore}
                 />
               )}
             </AnimatePresence>
