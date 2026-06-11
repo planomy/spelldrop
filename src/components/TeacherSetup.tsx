@@ -5,12 +5,23 @@ import { loadProgress, BADGES, UPGRADES } from '../progression'
 import type { GameSettings } from '../types'
 import './TeacherSetup.css'
 
+/** Quick-load lists aligned to Australian Curriculum English v9 spelling patterns by year level. */
 const SAMPLE_LISTS: Record<string, string> = {
-  'Grade 1': 'cat, dog, sun, hat, run, big, red, sit, top, fun',
-  'Grade 2': 'happy, school, friend, water, flower, garden, purple, winter',
-  'Grade 3': 'beautiful, elephant, adventure, wonderful, celebrate, important',
-  'Challenge': 'rhythm, knowledge, February, necessary, accommodate, Mississippi',
+  'Grade 1':
+    'cat, dog, sun, hat, run, mum, dad, sit, cup, pen, bed, hen, pig, top, fun',
+  'Grade 2':
+    'fish, chip, shop, tree, play, rain, book, look, home, cake, frog, ship, blue, when, with',
+  'Grade 3':
+    'school, friend, happy, water, garden, flower, winter, animal, people, because, mother, father, around, before, always',
+  'Grade 4':
+    'beautiful, different, important, favourite, surprise, imagine, natural, history, question, remember, business, exercise, special, complete, continue',
+  'Grade 5':
+    'necessary, separate, environment, government, knowledge, excellent, language, courageous, medicine, favourite, different, important, natural, surprise, remember',
+  'Grade 6':
+    'accommodate, recommend, category, privilege, occurrence, pronunciation, significance, parliament, conscience, miscellaneous, immediately, exaggerate, rhythm, guarantee, curiosity',
 }
+
+const PREVIEW_OPTIONS = [1, 2, 3] as const
 
 interface Props {
   onStart: (words: string[], settings: GameSettings) => void
@@ -20,14 +31,13 @@ interface Props {
 export default function TeacherSetup({ onStart, initialSettings }: Props) {
   const [wordInput, setWordInput] = useState('')
   const [previewSeconds, setPreviewSeconds] = useState(initialSettings.previewSeconds)
-  const [displayMode, setDisplayMode] = useState(initialSettings.displayMode)
 
   const parsedWords = parseWordList(wordInput)
   const progress = loadProgress()
 
   function handleStart() {
     if (parsedWords.length === 0) return
-    onStart(parsedWords, { previewSeconds, displayMode })
+    onStart(parsedWords, { previewSeconds })
   }
 
   function loadSample(key: string) {
@@ -91,6 +101,7 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
           {Object.keys(SAMPLE_LISTS).map((key) => (
             <button
               key={key}
+              type="button"
               className="setup__sample-btn"
               onClick={() => loadSample(key)}
             >
@@ -99,44 +110,19 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
           ))}
         </div>
 
-        <div className="setup__controls">
-          <div className="setup__control">
-            <label className="setup__label" htmlFor="preview">
-              Word preview time
-              <span className="setup__hint">{previewSeconds}s — how long kids see the word</span>
-            </label>
-            <div className="setup__slider-row">
-              <span className="setup__slider-mark">1s</span>
-              <input
-                id="preview"
-                type="range"
-                min={1}
-                max={3}
-                step={0.5}
-                value={previewSeconds}
-                onChange={(e) => setPreviewSeconds(parseFloat(e.target.value))}
-                className="setup__slider"
-              />
-              <span className="setup__slider-mark">3s</span>
-            </div>
-          </div>
-
-          <div className="setup__control">
-            <label className="setup__toggle">
-              <input
-                type="checkbox"
-                checked={displayMode}
-                onChange={(e) => setDisplayMode(e.target.checked)}
-              />
-              <span className="setup__toggle-track">
-                <span className="setup__toggle-thumb" />
-              </span>
-              <span className="setup__toggle-label">
-                Display mode
-                <span className="setup__hint">Larger text for classroom projection</span>
-              </span>
-            </label>
-          </div>
+        <div className="setup__preview-row">
+          <span className="setup__preview-label">Select preview time:</span>
+          {PREVIEW_OPTIONS.map((sec) => (
+            <button
+              key={sec}
+              type="button"
+              className={`setup__preview-btn ${previewSeconds === sec ? 'setup__preview-btn--active' : ''}`}
+              onClick={() => setPreviewSeconds(sec)}
+              aria-pressed={previewSeconds === sec}
+            >
+              {sec}sec
+            </button>
+          ))}
         </div>
 
         <motion.button

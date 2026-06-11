@@ -11,7 +11,6 @@ export default function App() {
   const [words, setWords] = useState<string[]>([])
   const [settings, setSettings] = useState<GameSettings>({
     previewSeconds: 2,
-    displayMode: false,
   })
 
   function handleStart(wordList: string[], gameSettings: GameSettings) {
@@ -26,7 +25,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <div className={`app-container ${settings.displayMode ? 'display-mode' : ''}`}>
+      <div className="app-container">
         {screen === 'setup' ? (
           <TeacherSetup onStart={handleStart} initialSettings={settings} />
         ) : (

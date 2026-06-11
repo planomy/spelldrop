@@ -1,6 +1,5 @@
 export interface GameSettings {
   previewSeconds: number
-  displayMode: boolean
 }
 
 export interface FallingLetter {
