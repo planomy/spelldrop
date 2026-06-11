@@ -18,9 +18,9 @@ export default function BadgeToast({ badgeId }: Props) {
         <motion.div
           key={badge.id}
           className="badge-toast"
-          initial={{ opacity: 0, y: 30, scale: 0.8 }}
+          initial={{ opacity: 0, y: -18, scale: 0.92 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.9 }}
+          exit={{ opacity: 0, y: -12, scale: 0.95 }}
           transition={{ type: 'spring', stiffness: 300, damping: 22 }}
         >
           <span className="badge-toast__tag">Badge Unlocked!</span>

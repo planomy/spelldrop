@@ -1,0 +1,27 @@
+.game-logo {
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+.game-logo--sm {
+  width: auto;
+  height: 2.4rem;
+}
+
+.game-logo--md {
+  width: auto;
+  height: 3.25rem;
+}
+
+.game-logo--lg {
+  width: auto;
+  height: 4.5rem;
+}
+
+.game-logo--hero {
+  width: min(100%, 19.6rem);
+  height: auto;
+}

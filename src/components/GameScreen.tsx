@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ProgressMeter from './ProgressMeter'
+import GameLogo from './GameLogo'
 import StreakBanner from './StreakBanner'
 import GoalsBar from './GoalsBar'
 import BadgeToast from './BadgeToast'
@@ -783,9 +784,12 @@ export default function GameScreen({ words, settings, onBack }: Props) {
   return (
     <div ref={gameStageRef} className="game">
       <div className="game__hud">
-        <button className="game__back" onClick={onBack} aria-label="Back to setup">
-          ←
-        </button>
+        <div className="game__hud-brand">
+          <button className="game__back" onClick={onBack} aria-label="Back to setup">
+            ←
+          </button>
+          <GameLogo size="sm" className="game__hud-logo" />
+        </div>
         <div className="game__hud-body">
           <div className="game__hud-row">
             <span className="game__hud-word">{wordIndex + 1}/{words.length}</span>

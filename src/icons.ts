@@ -34,7 +34,10 @@ import uiTopics from './assets/icons/ui-topics.png'
 import uiHotStreak from './assets/icons/ui-hot-streak.png'
 import uiDailyGoals from './assets/icons/ui-daily-goals.png'
 import uiSettings from './assets/icons/ui-settings.png'
+import titleLogo from './assets/title-logo.png'
 import type { DropSpeed, GameMode } from './types'
+
+export const TITLE_LOGO = titleLogo
 
 export const GOAL_ICON_BY_ID: Record<string, string> = {
   'complete-all': goalComplete,

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import GameLogo from './GameLogo'
 import StreakBanner from './StreakBanner'
 import GoalsBar from './GoalsBar'
 import BadgeToast from './BadgeToast'
@@ -358,6 +359,19 @@ export default function MathGameScreen({ settings, onBack }: Props) {
     }, 380)
   }
 
+  function fadeStaleTrails() {
+    setSwipeTrails((prev) => {
+      if (prev.length === 0) return prev
+      for (const trail of prev) {
+        const id = trail.id
+        window.setTimeout(() => {
+          setSwipeTrails((p) => p.filter((t) => t.id !== id))
+        }, 380)
+      }
+      return prev.map((t) => ({ ...t, fading: true }))
+    })
+  }
+
   function startFlyingAnswer(char: string, fromX: number, fromY: number) {
     const stageRect = gameStageRef.current?.getBoundingClientRect()
     const problemEl = problemRef.current
@@ -561,34 +575,54 @@ export default function MathGameScreen({ settings, onBack }: Props) {
   function processPointerMove(clientX: number, clientY: number, pointerId: number) {
     const swipe = swipeRef.current
     if (!swipe.active || swipe.pointerId !== pointerId) return
+
     const stageRect = gameStageRef.current?.getBoundingClientRect()
     if (!stageRect) return
+
+    const dist = Math.hypot(clientX - swipe.startX, clientY - swipe.startY)
     const { x, y } = toStageCoords(clientX, clientY, stageRect)
-    swipe.lastClientX = clientX
-    swipe.lastClientY = clientY
-    if (swipe.trailId !== null) appendTrailPoint(x, y, swipe.trailId)
-    const dist = Math.hypot(x - swipe.startX, y - swipe.startY)
-    if (!swipe.isSwipe && dist >= SWIPE_THRESHOLD) swipe.isSwipe = true
-    if (swipe.isSwipe) {
-      checkSwipeSegment(swipe.lastTrailX, swipe.lastTrailY, x, y)
+    const prevClientX = swipe.lastClientX
+    const prevClientY = swipe.lastClientY
+
+    if (!swipe.isSwipe && dist > SWIPE_THRESHOLD) {
+      swipe.isSwipe = true
+      swipe.trailId = startSwipeTrail(swipe.lastTrailX, swipe.lastTrailY)
+      if (swipe.trailId !== null) appendTrailPoint(x, y, swipe.trailId)
+      checkSwipeSegment(swipe.startX, swipe.startY, clientX, clientY)
+    }
+
+    if (!swipe.isSwipe) return
+
+    if (swipe.trailId !== null) {
+      appendTrailPoint(x, y, swipe.trailId)
       swipe.lastTrailX = x
       swipe.lastTrailY = y
     }
+
+    checkSwipeSegment(prevClientX, prevClientY, clientX, clientY)
+    swipe.lastClientX = clientX
+    swipe.lastClientY = clientY
   }
 
   function processPointerUp(clientX: number, clientY: number, pointerId: number) {
     const swipe = swipeRef.current
-    if (!swipe.active || swipe.pointerId !== pointerId) return
-    swipe.active = false
+    if (!swipe.active || swipe.ended || swipe.pointerId !== pointerId) return
     swipe.ended = true
-    if (swipe.trailId !== null) fadeSwipeTrail(swipe.trailId)
 
-    if (!swipe.isSwipe) {
+    gameAreaRef.current?.releasePointerCapture(pointerId)
+
+    if (swipe.isSwipe) {
+      checkSwipeSegment(swipe.lastClientX, swipe.lastClientY, clientX, clientY)
+      const swipeDist = Math.hypot(clientX - swipe.startX, clientY - swipe.startY)
+      if (!swipe.hitLetter && !swipe.wrongTriggered && swipeDist > SWIPE_THRESHOLD) {
+        penalizeRandomSwipe()
+      }
+      if (swipe.trailId !== null) fadeSwipeTrail(swipe.trailId)
+    } else {
       const hit = findNumberAt(clientX, clientY)
       if (hit) tryCaptureNumber(hit.letter, hit.fromX, hit.fromY, false)
-    } else if (!swipe.hitLetter && !swipe.wrongTriggered) {
-      penalizeRandomSwipe()
     }
+
     swipeRef.current = {
       ...swipe,
       active: false,
@@ -603,21 +637,26 @@ export default function MathGameScreen({ settings, onBack }: Props) {
 
   function handlePointerDown(e: React.PointerEvent) {
     if (phase !== 'playing' || flyingLetter) return
+
+    fadeStaleTrails()
+    e.currentTarget.setPointerCapture(e.pointerId)
+
     const stageRect = gameStageRef.current?.getBoundingClientRect()
     if (!stageRect) return
+
     const { x, y } = toStageCoords(e.clientX, e.clientY, stageRect)
-    const trailId = startSwipeTrail(x, y)
+
     swipeRef.current = {
       active: true,
       ended: false,
       isSwipe: false,
       hitLetter: false,
       pointerId: e.pointerId,
-      startX: x,
-      startY: y,
+      startX: e.clientX,
+      startY: e.clientY,
       hitIds: new Set(),
       wrongTriggered: false,
-      trailId,
+      trailId: null,
       lastTrailX: x,
       lastTrailY: y,
       lastClientX: e.clientX,
@@ -640,9 +679,12 @@ export default function MathGameScreen({ settings, onBack }: Props) {
   return (
     <div ref={gameStageRef} className={`game math-game ${wrongFlash ? 'game--wrong' : ''} ${successPulse ? 'game--success' : ''}`}>
       <div className="game__hud">
-        <button type="button" className="game__back" onClick={onBack} aria-label="Back to setup">
-          ←
-        </button>
+        <div className="game__hud-brand">
+          <button type="button" className="game__back" onClick={onBack} aria-label="Back to setup">
+            ←
+          </button>
+          <GameLogo size="sm" className="game__hud-logo" />
+        </div>
         <div className="game__hud-body">
           <div className="game__hud-row">
             <div className="game__math-timer">

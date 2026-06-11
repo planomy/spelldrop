@@ -7,7 +7,7 @@ export const SPAWN_INTERVAL_MS = 650
 
 export function parseWordList(input: string): string[] {
   return input
-    .split(/[\n,;]+/)
+    .split(',')
     .map((w) => w.trim().toLowerCase().replace(/[^a-z]/g, ''))
     .filter((w) => w.length > 0)
 }

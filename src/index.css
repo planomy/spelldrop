@@ -11,11 +11,20 @@
   --purple: #7C3AED;
   --purple-light: #A78BFA;
   --purple-glow: #8B5CF6;
-  --black: #0A0A0A;
-  --black-soft: #141414;
-  --black-card: #1A1A1A;
+  --black: #10082A;
+  --black-soft: #18103A;
+  --black-card: #221445;
+  --purple-banner-top: #7A58E8;
+  --purple-banner-bottom: #4A3198;
+  --purple-panel: #1C1240;
+  --glass: rgba(34, 22, 68, 0.72);
+  --glass-border: rgba(139, 110, 230, 0.34);
+  --purple-surface: rgba(124, 58, 237, 0.08);
+  --purple-surface-strong: rgba(124, 58, 237, 0.18);
+  --overlay: rgba(12, 12, 16, 0.66);
+  --overlay-strong: rgba(12, 12, 16, 0.84);
   --white: #FFFFFF;
-  --white-dim: rgba(255, 255, 255, 0.7);
+  --white-dim: rgba(255, 255, 255, 0.76);
   --success: #22C55E;
   --error: #EF4444;
   --font-display: 'Luckiest Guy', cursive;
@@ -34,7 +43,7 @@ html, body, #root {
 
 body {
   font-family: var(--font-body);
-  background: #050505;
+  background: var(--black);
   color: var(--white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

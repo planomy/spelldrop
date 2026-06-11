@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { parseWordList } from '../utils'
 import { loadProgress, BADGES, UPGRADES } from '../progression'
 import { DROP_SPEED_OPTIONS } from '../dropSpeed'
-import { GOAL_ICONS_PREVIEW, MODE_ICONS, SETUP_ICONS } from '../icons'
+import { MODE_ICONS, SETUP_ICONS } from '../icons'
 import type { DropSpeed, GameMode, GameSettings, MathDuration, SpellSettings, MathSettings } from '../types'
 import GameIcon from './GameIcon'
+import GameLogo from './GameLogo'
+import SetupBadgeShelf from './SetupBadgeShelf'
 import './TeacherSetup.css'
 
 const SAMPLE_LISTS: Record<string, string> = {
@@ -72,7 +74,7 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
   }
 
   function loadSample(key: string) {
-    setWordInput(SAMPLE_LISTS[key].replace(/, /g, '\n'))
+    setWordInput(SAMPLE_LISTS[key])
   }
 
   function toggleTable(n: number) {
@@ -96,105 +98,105 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
         ? 'All tables'
         : selectedTables.map((t) => `${t}s`).join(', ')
 
+  const showProgress = progress.unlockedBadges.length > 0 || progress.totalGamesPlayed > 0
+
   return (
     <div className="setup">
       <motion.div
-        className="setup__hero"
-        initial={{ opacity: 0, y: -30 }}
+        className="setup__header"
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <h1 className="setup__title">
-          <span className="setup__title-spell">Spell</span>
-          <span className="setup__title-drop">Drop</span>
+          <GameLogo size="hero" />
         </h1>
-        <p className="setup__tagline">Swipe fast. Score big. Master spelling & times tables.</p>
-        {(progress.unlockedBadges.length > 0 || progress.totalGamesPlayed > 0) && (
+        <div className="setup__header-controls">
+          <div className="setup__mode-tabs" role="tablist" aria-label="Game mode">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'spell'}
+              className={`setup__mode-tab ${mode === 'spell' ? 'setup__mode-tab--active' : ''}`}
+              onClick={() => setMode('spell')}
+            >
+              <GameIcon src={MODE_ICONS.spell} alt="" size="sm" className="setup__mode-icon" />
+              <span className="setup__mode-copy">
+                <span className="setup__mode-name">Spelling</span>
+                <span className="setup__mode-desc">Catch letters, build words</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'math'}
+              className={`setup__mode-tab ${mode === 'math' ? 'setup__mode-tab--active' : ''}`}
+              onClick={() => setMode('math')}
+            >
+              <GameIcon src={MODE_ICONS.math} alt="" size="sm" className="setup__mode-icon" />
+              <span className="setup__mode-copy">
+                <span className="setup__mode-name">Times Tables</span>
+                <span className="setup__mode-desc">Swipe the right answer</span>
+              </span>
+            </button>
+          </div>
+
+          <div
+            className="setup__controls-speed"
+            title="Faster drops = more chances to score"
+          >
+            <span className="setup__controls-speed-label">Drop speed</span>
+            <div className="setup__speed-row">
+              {DROP_SPEED_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  className={`setup__speed-btn ${dropSpeed === opt.id ? 'setup__speed-btn--active' : ''}`}
+                  onClick={() => setDropSpeed(opt.id)}
+                  aria-pressed={dropSpeed === opt.id}
+                >
+                  <GameIcon src={opt.icon} alt="" size="sm" className="setup__speed-icon" />
+                  <span>{opt.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="setup__badge-bar">
+        <SetupBadgeShelf unlockedBadgeIds={progress.unlockedBadges} />
+        {showProgress && (
           <div className="setup__trophy">
             <span className="setup__trophy-item">
-              <GameIcon src={SETUP_ICONS.badges} alt="Badges" size="xs" />
+              <GameIcon src={SETUP_ICONS.badges} alt="Badges" size="sm" />
               {progress.unlockedBadges.length}/{BADGES.length} badges
             </span>
             <span className="setup__trophy-item">
-              <GameIcon src={SETUP_ICONS.upgrades} alt="Upgrades" size="xs" />
+              <GameIcon src={SETUP_ICONS.upgrades} alt="Upgrades" size="sm" />
               {progress.unlockedUpgrades.length}/{UPGRADES.length} upgrades
             </span>
             {progress.highScore > 0 && (
               <span className="setup__trophy-item">
-                <GameIcon src={SETUP_ICONS.best} alt="Best score" size="xs" />
+                <GameIcon src={SETUP_ICONS.best} alt="Best score" size="sm" />
                 Best {progress.highScore.toLocaleString()}
-              </span>
-            )}
-            {progress.lifetimeScore > 0 && (
-              <span className="setup__trophy-item">
-                <GameIcon src={SETUP_ICONS.lifetime} alt="Lifetime score" size="xs" />
-                {progress.lifetimeScore.toLocaleString()} lifetime
               </span>
             )}
           </div>
         )}
-        <div className="setup__goal-preview" aria-label="In-game goals">
-          {GOAL_ICONS_PREVIEW.map((item) => (
-            <GameIcon key={item.label} src={item.src} alt={`${item.label} goal`} size="sm" />
-          ))}
-        </div>
-      </motion.div>
+      </div>
 
       <motion.div
         className="setup__panel"
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
+        transition={{ duration: 0.45, delay: 0.15 }}
       >
-        <div className="setup__mode-tabs" role="tablist" aria-label="Game mode">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'spell'}
-            className={`setup__mode-tab ${mode === 'spell' ? 'setup__mode-tab--active' : ''}`}
-            onClick={() => setMode('spell')}
-          >
-            <GameIcon src={MODE_ICONS.spell} alt="" size="sm" className="setup__mode-icon" />
-            <span className="setup__mode-name">Spelling</span>
-            <span className="setup__mode-desc">Catch letters, build words</span>
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'math'}
-            className={`setup__mode-tab ${mode === 'math' ? 'setup__mode-tab--active' : ''}`}
-            onClick={() => setMode('math')}
-          >
-            <GameIcon src={MODE_ICONS.math} alt="" size="sm" className="setup__mode-icon" />
-            <span className="setup__mode-name">Times Tables</span>
-            <span className="setup__mode-desc">Swipe the right answer</span>
-          </button>
-        </div>
-
-        <div className="setup__shared">
-          <span className="setup__shared-label">Drop speed</span>
-          <div className="setup__speed-row">
-            {DROP_SPEED_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                className={`setup__speed-btn ${dropSpeed === opt.id ? 'setup__speed-btn--active' : ''}`}
-                onClick={() => setDropSpeed(opt.id)}
-                aria-pressed={dropSpeed === opt.id}
-              >
-                <GameIcon src={opt.icon} alt="" size="sm" className="setup__speed-icon" />
-                <span>{opt.label}</span>
-              </button>
-            ))}
-          </div>
-          <p className="setup__speed-hint">Faster drops = more chances to score</p>
-        </div>
-
         <AnimatePresence mode="wait">
           {mode === 'spell' ? (
             <motion.div
               key="spell"
-              className="setup__mode-body"
+              className="setup__mode-body setup__workspace"
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 12 }}
@@ -203,23 +205,18 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
               <div className="setup__section">
                 <label className="setup__label" htmlFor="words">
                   Word List
-                  <span className="setup__hint">One word per line, or comma-separated</span>
+                  <span className="setup__hint">Comma-separated words</span>
                 </label>
-                <textarea
+                <input
                   id="words"
-                  className="setup__textarea"
-                  placeholder={'cat\ndog\nsun\nhappy\nschool'}
+                  type="text"
+                  className="setup__word-input"
+                  placeholder="e.g. cat, dog, sun, hat"
                   value={wordInput}
                   onChange={(e) => setWordInput(e.target.value)}
-                  rows={7}
+                  autoComplete="off"
+                  spellCheck={false}
                 />
-                <div className="setup__word-count">
-                  {parsedWords.length > 0 ? (
-                    <span>{parsedWords.length} word{parsedWords.length !== 1 ? 's' : ''} ready</span>
-                  ) : (
-                    <span>Add some words to get started</span>
-                  )}
-                </div>
               </div>
 
               <div className="setup__samples">
@@ -254,7 +251,7 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
           ) : (
             <motion.div
               key="math"
-              className="setup__mode-body"
+              className="setup__mode-body setup__workspace"
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
@@ -304,10 +301,6 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
                   </button>
                 ))}
               </div>
-
-              <p className="setup__math-example">
-                Example: <strong>5 × 4</strong> appears below — swipe <strong>20</strong> as it falls
-              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -319,7 +312,7 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
         >
-          {mode === 'spell' ? 'GO!' : 'START!'}
+          START!
         </motion.button>
       </motion.div>
     </div>

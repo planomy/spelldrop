@@ -1,0 +1,94 @@
+.setup-badge-shelf {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 0.22rem;
+  width: 100%;
+  padding: 0.32rem 0.38rem;
+  background: rgba(124, 58, 237, 0.12);
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  border-radius: 18px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.setup-badge-shelf::-webkit-scrollbar {
+  display: none;
+}
+
+.setup-badge-shelf__slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.08rem;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.18rem 0.14rem 0.14rem;
+  border-radius: 10px;
+  border: 1px dashed rgba(124, 58, 237, 0.28);
+  background: rgba(8, 4, 20, 0.35);
+  transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+}
+
+.setup-badge-shelf__slot--locked .setup-badge-shelf__icon {
+  opacity: 0.38;
+  filter: grayscale(1) brightness(0.72);
+}
+
+.setup-badge-shelf__slot--earned {
+  border-style: solid;
+  border-color: rgba(250, 204, 21, 0.45);
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.setup-badge-shelf__slot--earned .setup-badge-shelf__icon {
+  opacity: 1;
+  filter: none;
+}
+
+.setup-badge-shelf__icon {
+  width: clamp(1.9rem, 2.2vw, 2.35rem);
+  height: clamp(1.9rem, 2.2vw, 2.35rem);
+}
+
+.setup-badge-shelf__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.setup-badge-shelf__name {
+  width: 100%;
+  max-width: 100%;
+  font-size: 0.52rem;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--white-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.setup-badge-shelf__slot--earned .setup-badge-shelf__name {
+  color: #facc15;
+}
+
+.setup-badge-shelf__slot--locked .setup-badge-shelf__name {
+  color: rgba(167, 139, 250, 0.72);
+}
+
+@media (max-width: 520px) {
+  .setup-badge-shelf {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

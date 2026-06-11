@@ -14,7 +14,7 @@
   gap: 0.35rem;
   padding: 0 0.5rem 0.7rem;
   pointer-events: none;
-  background: linear-gradient(0deg, rgba(10, 10, 10, 0.92) 35%, transparent 100%);
+  background: linear-gradient(0deg, rgba(12, 12, 16, 0.82) 35%, transparent 100%);
 }
 
 .math-game__problem {
@@ -23,8 +23,8 @@
   align-items: center;
   gap: 0.25rem;
   padding: 1rem 2rem;
-  background: rgba(124, 58, 237, 0.12);
-  border: 2px solid rgba(124, 58, 237, 0.4);
+  background: rgba(124, 58, 237, 0.1);
+  border: 2px solid rgba(124, 58, 237, 0.32);
   border-radius: 18px;
   min-width: min(100%, 280px);
   transition: box-shadow 0.3s, border-color 0.3s;
