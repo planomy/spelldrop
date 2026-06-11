@@ -1,4 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { STREAK_TIER_ICONS } from '../icons'
+import GameIcon from './GameIcon'
 import './StreakBanner.css'
 
 interface Props {
@@ -10,12 +12,13 @@ export default function StreakBanner({ streak, compact }: Props) {
   if (streak < 2) return null
 
   const tier = streak >= 10 ? 'legendary' : streak >= 5 ? 'hot' : 'warm'
-  const emoji = tier === 'legendary' ? '👑' : tier === 'hot' ? '🔥' : '✨'
+  const icon = STREAK_TIER_ICONS[tier]
 
   if (compact) {
     return (
       <span className={`streak streak--compact streak--${tier}`}>
-        {emoji}{streak}
+        <GameIcon src={icon} alt="" size="xs" className="streak__icon" />
+        {streak}
       </span>
     )
   }
@@ -30,7 +33,7 @@ export default function StreakBanner({ streak, compact }: Props) {
         exit={{ scale: 0.8, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 400, damping: 18 }}
       >
-        <span className="streak__emoji">{emoji}</span>
+        <GameIcon src={icon} alt="" size="sm" className="streak__icon" />
         <span className="streak__count">{streak}</span>
         <span className="streak__label">streak</span>
       </motion.div>

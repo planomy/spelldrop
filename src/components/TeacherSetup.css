@@ -48,6 +48,23 @@
   font-weight: 500;
 }
 
+.setup__trophy-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.setup__goal-preview {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+  padding: 0.45rem 0.65rem;
+  background: rgba(124, 58, 237, 0.08);
+  border-radius: 14px;
+  border: 1px solid rgba(124, 58, 237, 0.18);
+}
+
 .setup__panel {
   width: 100%;
   max-width: 560px;
@@ -240,8 +257,8 @@
 }
 
 .setup__mode-icon {
-  font-size: 1.35rem;
-  line-height: 1;
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 .setup__mode-name {
@@ -307,9 +324,9 @@
   box-shadow: 0 0 14px rgba(124, 58, 237, 0.4);
 }
 
-.setup__speed-emoji {
-  font-size: 1.1rem;
-  line-height: 1;
+.setup__speed-icon {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .setup__speed-hint {

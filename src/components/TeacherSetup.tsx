@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { parseWordList } from '../utils'
 import { loadProgress, BADGES, UPGRADES } from '../progression'
 import { DROP_SPEED_OPTIONS } from '../dropSpeed'
+import { GOAL_ICONS_PREVIEW, MODE_ICONS, SETUP_ICONS } from '../icons'
 import type { DropSpeed, GameMode, GameSettings, MathDuration, SpellSettings, MathSettings } from '../types'
+import GameIcon from './GameIcon'
 import './TeacherSetup.css'
 
 const SAMPLE_LISTS: Record<string, string> = {
@@ -109,16 +111,33 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
         <p className="setup__tagline">Swipe fast. Score big. Master spelling & times tables.</p>
         {(progress.unlockedBadges.length > 0 || progress.totalGamesPlayed > 0) && (
           <div className="setup__trophy">
-            <span>🏆 {progress.unlockedBadges.length}/{BADGES.length} badges</span>
-            <span>⚡ {progress.unlockedUpgrades.length}/{UPGRADES.length} upgrades</span>
+            <span className="setup__trophy-item">
+              <GameIcon src={SETUP_ICONS.badges} alt="Badges" size="xs" />
+              {progress.unlockedBadges.length}/{BADGES.length} badges
+            </span>
+            <span className="setup__trophy-item">
+              <GameIcon src={SETUP_ICONS.upgrades} alt="Upgrades" size="xs" />
+              {progress.unlockedUpgrades.length}/{UPGRADES.length} upgrades
+            </span>
             {progress.highScore > 0 && (
-              <span>👑 Best {progress.highScore.toLocaleString()}</span>
+              <span className="setup__trophy-item">
+                <GameIcon src={SETUP_ICONS.best} alt="Best score" size="xs" />
+                Best {progress.highScore.toLocaleString()}
+              </span>
             )}
             {progress.lifetimeScore > 0 && (
-              <span>✦ {progress.lifetimeScore.toLocaleString()} lifetime</span>
+              <span className="setup__trophy-item">
+                <GameIcon src={SETUP_ICONS.lifetime} alt="Lifetime score" size="xs" />
+                {progress.lifetimeScore.toLocaleString()} lifetime
+              </span>
             )}
           </div>
         )}
+        <div className="setup__goal-preview" aria-label="In-game goals">
+          {GOAL_ICONS_PREVIEW.map((item) => (
+            <GameIcon key={item.label} src={item.src} alt={`${item.label} goal`} size="sm" />
+          ))}
+        </div>
       </motion.div>
 
       <motion.div
@@ -135,7 +154,7 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
             className={`setup__mode-tab ${mode === 'spell' ? 'setup__mode-tab--active' : ''}`}
             onClick={() => setMode('spell')}
           >
-            <span className="setup__mode-icon">✏️</span>
+            <GameIcon src={MODE_ICONS.spell} alt="" size="sm" className="setup__mode-icon" />
             <span className="setup__mode-name">Spelling</span>
             <span className="setup__mode-desc">Catch letters, build words</span>
           </button>
@@ -146,7 +165,7 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
             className={`setup__mode-tab ${mode === 'math' ? 'setup__mode-tab--active' : ''}`}
             onClick={() => setMode('math')}
           >
-            <span className="setup__mode-icon">✖️</span>
+            <GameIcon src={MODE_ICONS.math} alt="" size="sm" className="setup__mode-icon" />
             <span className="setup__mode-name">Times Tables</span>
             <span className="setup__mode-desc">Swipe the right answer</span>
           </button>
@@ -163,7 +182,7 @@ export default function TeacherSetup({ onStart, initialSettings }: Props) {
                 onClick={() => setDropSpeed(opt.id)}
                 aria-pressed={dropSpeed === opt.id}
               >
-                <span className="setup__speed-emoji">{opt.emoji}</span>
+                <GameIcon src={opt.icon} alt="" size="sm" className="setup__speed-icon" />
                 <span>{opt.label}</span>
               </button>
             ))}

@@ -1,10 +1,11 @@
+import { SPEED_ICON_BY_ID } from './icons'
 import type { DropSpeed } from './types'
 
-export const DROP_SPEED_OPTIONS: { id: DropSpeed; label: string; emoji: string }[] = [
-  { id: 'chill', label: 'Chill', emoji: '🍃' },
-  { id: 'normal', label: 'Normal', emoji: '⚡' },
-  { id: 'fast', label: 'Fast', emoji: '🔥' },
-  { id: 'turbo', label: 'Turbo', emoji: '🚀' },
+export const DROP_SPEED_OPTIONS: { id: DropSpeed; label: string; icon: string }[] = [
+  { id: 'chill', label: 'Chill', icon: SPEED_ICON_BY_ID.chill },
+  { id: 'normal', label: 'Normal', icon: SPEED_ICON_BY_ID.normal },
+  { id: 'fast', label: 'Fast', icon: SPEED_ICON_BY_ID.fast },
+  { id: 'turbo', label: 'Turbo', icon: SPEED_ICON_BY_ID.turbo },
 ]
 
 export function getFallSpeedMultiplier(speed: DropSpeed): number {
