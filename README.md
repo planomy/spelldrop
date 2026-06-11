@@ -1,6 +1,6 @@
-# SpellDrop
+# Ninja Boom
 
-A fun spelling game for classrooms and individual practice. Teachers add word lists, students catch falling letters in order to spell each word.
+A fun spelling and times tables game for classrooms and individual practice. Teachers add word lists, students catch falling letters in order to spell each word.
 
 ## Features
 
@@ -33,7 +33,7 @@ npm run preview
 
 The built site is output to `docs/` for hosting at:
 
-https://planomy.github.io/spelldrop/
+https://planomy.github.io/ninjaboom/
 
 In the repo **Settings → Pages**, set source to **main** branch, **/docs** folder.
 

@@ -64,7 +64,8 @@ export const UPGRADES: Upgrade[] = [
   { id: 'speed-demon', name: 'Speed Demon', description: '+15% on lightning words', unlockBadgeId: 'lightning' },
 ]
 
-const STORAGE_KEY = 'spelldrop-progress'
+const STORAGE_KEY = 'ninjaboom-progress'
+const LEGACY_STORAGE_KEY = 'spelldrop-progress'
 
 export function createSessionStats(): SessionStats {
   return {
@@ -97,7 +98,14 @@ function normalizeProgress(raw: Partial<PlayerProgress>): PlayerProgress {
 
 export function loadProgress(): PlayerProgress {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    let raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY)
+      if (raw) {
+        localStorage.setItem(STORAGE_KEY, raw)
+        localStorage.removeItem(LEGACY_STORAGE_KEY)
+      }
+    }
     if (raw) return normalizeProgress(JSON.parse(raw) as Partial<PlayerProgress>)
   } catch { /* ignore */ }
   return normalizeProgress({})

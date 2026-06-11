@@ -3,16 +3,16 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/spelldrop/',
+  base: '/ninjaboom/',
   server: {
     port: 5173,
     strictPort: true,
-    open: '/spelldrop/',
+    open: '/ninjaboom/',
   },
   preview: {
     port: 4173,
     strictPort: true,
-    open: '/spelldrop/',
+    open: '/ninjaboom/',
   },
   build: {
     outDir: 'docs',
